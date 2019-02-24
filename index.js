@@ -4,7 +4,8 @@
 const
   express = require('express'),
   bodyParser = require('body-parser'),
-  app = express().use(bodyParser.json()); // creates express http server
+  app = express().use(bodyParser.json()),// creates express http server
+  util = require('util');
 
 // Sets server port and logs message on success
 app.listen(process.env.PORT || 1337, () => console.log('webhook is listening'));
@@ -13,7 +14,7 @@ app.listen(process.env.PORT || 1337, () => console.log('webhook is listening'));
 app.post('/webhook', (req, res) => {  
  
   let body = req.body;
-  console.log('post req:' +req);
+  console.log('post req.body:' +JSON.stringify(req.body));
 
   // Checks this is an event from a page subscription
   if (body.object === 'page') {
@@ -39,7 +40,7 @@ app.post('/webhook', (req, res) => {
 // Adds support for GET requests to our webhook
 app.get('/webhook', (req, res) => {
   
-  console.log('get req:' +req);
+  console.log('get req.query:' +JSON.stringify(req.query));
 
   // Your verify token. Should be a random string.
   let VERIFY_TOKEN = "samit";
