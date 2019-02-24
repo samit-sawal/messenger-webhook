@@ -5,7 +5,8 @@ const
   express = require('express'),
   bodyParser = require('body-parser'),
   app = express().use(bodyParser.json()),// creates express http server
-  util = require('util');
+  util = require('util'),
+  request = require('request');
 
 // Sets server port and logs message on success
 app.listen(process.env.PORT || 1337, () => console.log('webhook is listening'));
@@ -26,6 +27,18 @@ app.post('/webhook', (req, res) => {
       // will only ever contain one message, so we get index 0
       let webhook_event = entry.messaging[0];
       console.log(webhook_event);
+
+      var messageData = {
+        "messaging_type": "RESPONSE",
+        "recipient": {
+          "id": entry.messaging[0].sender.id
+        },
+        "message": {
+          "text": "hello, world!"
+        }
+      };
+
+      setTimeout(function () {callSendAPI(messageData)}, 3000);
     });
 
     // Returns a '200 OK' response to all requests
@@ -36,6 +49,36 @@ app.post('/webhook', (req, res) => {
   }
 
 });
+
+function callSendAPI(messageData) {
+  //console.log("Send api-", messageData);
+
+  request({
+    uri: 'https://graph.facebook.com/v2.6/me/messages',
+    qs: { access_token: 'EAALE1BqjKvEBALVqcLYoomAzZCG9rNSFzhdowwTWlOK7DKz3iA6sB37cBsZBuNmI7WZBXuF8m6s6gzVlDapoutw21UlQih7KWTWifAC2mIdEgVJqCPqnZCnlaE3mdj4HWZCHcGWsfXBl0vYS5D2TqjZBfTuqFBwgRLgZAZAZA4QBVHwZDZD' },
+    method: 'POST',
+    json: messageData
+
+  }, function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      var recipientId = body.recipient_id;
+      var messageId = body.message_id;
+
+      if (messageId) {
+        console.log("Successfully sent message with id %s to recipient %s",
+          messageId, recipientId);
+      } else {
+        console.log("Successfully called Send API for recipient %s",
+          recipientId);
+      }
+    } else {
+      console.log("Failed calling Send API - Error=", error);
+      console.log("Failed calling Send API - Response=", response);
+      console.log("Failed calling Send API - Body=", body);
+      //console.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
+    }
+  });
+}
 
 // Adds support for GET requests to our webhook
 app.get('/webhook', (req, res) => {
