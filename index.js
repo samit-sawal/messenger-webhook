@@ -13,7 +13,7 @@ app.listen(process.env.PORT || 1337, () => console.log('webhook is listening'));
 app.post('/webhook', (req, res) => {  
  
   let body = req.body;
-  console.log('req:' +req);
+  console.log('post req:' +req);
 
   // Checks this is an event from a page subscription
   if (body.object === 'page') {
@@ -38,9 +38,11 @@ app.post('/webhook', (req, res) => {
 
 // Adds support for GET requests to our webhook
 app.get('/webhook', (req, res) => {
+  
+  console.log('get req:' +req);
 
   // Your verify token. Should be a random string.
-  let VERIFY_TOKEN = "samit"
+  let VERIFY_TOKEN = "samit";
     
   // Parse the query params
   let mode = req.query['hub.mode'];
